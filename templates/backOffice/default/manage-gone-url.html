@@ -21,78 +21,15 @@
 
                         <br>
 
-                        <table class="table table-striped">
+                        <table class="table table-condensed table-striped" id="redirection-table">
                             <thead>
                             <tr>
-                                <th>
-                                    {admin_sortable_header
-                                    current_order=$order
-                                    order='url_source:asc'
-                                    reverse_order='url_source:desc'
-                                    path=$smarty.server.REQUEST_URI
-                                    label="{intl l='URL Source' d="rewriteurl.bo.default"}"
-                                    }
-                                </th>
-                                <th class="text-center">
-                                    {admin_sortable_header
-                                    current_order=$order
-                                    order='created_at:asc'
-                                    reverse_order='created_at:desc'
-                                    path=$smarty.server.REQUEST_URI
-                                    label="{intl l='Created At' d="rewriteurl.bo.default"}"
-                                    }
-                                </th>
-                                <th class="text-center">
-                                    {admin_sortable_header
-                                    current_order=$order
-                                    order='updated_at:asc'
-                                    reverse_order='updated_at:desc'
-                                    path=$smarty.server.REQUEST_URI
-                                    label="{intl l='Updated At' d="rewriteurl.bo.default"}"
-                                    }
-                                </th>
-                                <th class="text-center">{intl l="Actions" d="rewriteurl.bo.default"}</th>
+                                <th class="text-center"><label class="control-label">{intl l='URL Source' d="rewriteurl.bo.default"}</label></th>
+                                <th class="text-center"><label class="control-label">{intl l='Created At' d="rewriteurl.bo.default"}</label></th>
+                                <th class="text-center"><label class="control-label">{intl l='Updated At' d="rewriteurl.bo.default"}</label></th>
+                                <th class="text-center"><label class="control-label">{intl l="Actions" d="rewriteurl.bo.default"}</label></th>
                             </tr>
                             </thead>
-                            <tbody>
-                            {loop type="generic" name="rewriteurl_gone_url_loop" table_name="rewriteurl_gone_url" orders=$order page=$page limit=20}
-                                <tr data-id="{$ID}">
-                                    <td>
-                                        <a href="{url path="$URL_SOURCE"}" target="_blank">{$URL_SOURCE}</a>
-                                    </td>
-                                    <td class="text-center">{$CREATED_AT|date_format:"%d/%m/%Y"}</td>
-                                    <td class="text-center">{$UPDATED_AT|date_format:"%d/%m/%Y"}</td>
-                                    <td class="text-center">
-                                        <button
-                                            class="btn btn-danger btn-delete-gone-url"
-                                            data-id="{$ID}"
-                                            title="{intl l='Delete' d="rewriteurl.bo.default"}"
-                                        >
-                                            <span class="fas fa-trash"></span>
-                                        </button>
-                                    </td>
-                                </tr>
-                            {/loop}
-                            {elseloop rel="rewriteurl_gone_url_loop"}
-                                <tr>
-                                    <td colspan="3" class="text-center">
-                                        {intl l="No gone URL found." d='rewriteurl.bo.default'}
-                                    </td>
-                                </tr>
-                            {/elseloop}
-                            </tbody>
-                            <tfoot>
-                            <tr>
-                                <td colspan="4">
-                                    {include
-                                    file="includes/pagination.html"
-                                    loop_ref="rewriteurl_gone_url_loop"
-                                    max_page_count=20
-                                    page_url={url path="/admin/module/RewriteUrl/manageGoneUrl" order=$order}
-                                    }
-                                </td>
-                            </tr>
-                            </tfoot>
                         </table>
                     </div>
                 </div>
@@ -101,35 +38,6 @@
     </div>
 {/block}
 
-{block name="javascript-initialization"}
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            document.querySelectorAll('.btn-delete-gone-url').forEach(function (button) {
-                button.addEventListener('click', async function () {
-                    if (!confirm('{intl l="Are you sure you want to delete this URL?" d="rewriteurl.bo.default"}')) {
-                        return;
-                    }
-
-                    const id = this.dataset.id;
-
-                    await fetch('/admin/module/RewriteUrl/manageGoneUrl/delete/' + id, {
-                        method: 'POST',
-                        headers: {
-                            'X-Requested-With': 'XMLHttpRequest',
-                            'Content-Type': 'application/json',
-                        }
-                    })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                document.querySelector('tr[data-id="' + id + '"]').remove();
-                            } else {
-                                alert('Erreur lors de la suppression.');
-                            }
-                        })
-                        .catch(error => console.error('Erreur:', error));
-                });
-            });
-        });
-    </script>
+{block name="javascript-last-call"}
+    {include file="RewriteUrl/manage-gone-url-js.html"}
 {/block}
